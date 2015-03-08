@@ -6,6 +6,7 @@
 package Entity;
 
 import Base.Handler;
+import Listener.Console;
 import Physics.Model;
 import Physics.Vector3D;
 
@@ -40,6 +41,24 @@ public class OxygenProducer extends Machiene{
     @Override
     public void stopped(Handler hander) {
         
+    }
+    
+    @Override
+    public void onClick(Model model){
+        if(this.intersects(model)){
+            Console.sendOut("Oxygen");
+            if(!this.state.equals(Machiene.EnumState.broken)){
+                if(this.state.equals(Machiene.EnumState.working)){
+                    this.state = Machiene.EnumState.idle;
+                    this.indicatorLight.assignTexture("Machienes/light_idle.png");
+                    return;
+                }
+                if(this.state.equals(Machiene.EnumState.idle)){
+                    this.state = Machiene.EnumState.working;
+                    this.indicatorLight.assignTexture("Machienes/light_working.png");
+                }
+            }
+        }
     }
     
 }

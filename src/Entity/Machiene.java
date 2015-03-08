@@ -74,7 +74,7 @@ public abstract class Machiene extends Entity{
     public abstract void idle(Handler hander);
     public abstract void stopped(Handler hander);
 
-    private enum EnumState{
+    public enum EnumState{
         idle,
         working,
         stopped,

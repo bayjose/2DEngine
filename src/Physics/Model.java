@@ -9,6 +9,7 @@ import Base.Camera;
 import Base.Game;
 import Base.Handler;
 import Base.util.DistanceCalculator;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -38,6 +39,7 @@ public class Model {
     public int[] colorIndex;
     public Color[] colors;
     public Face[] faces;
+    public float opacity = 1.0f;
     
     //texture of the image
     private BufferedImage textures = null;
@@ -236,7 +238,13 @@ public class Model {
                     if(tempFace!=null){
                         g.translate((int)(this.offset.getX()+Camera.position.getX()-tempFace.getWidth()/2), (int)(this.offset.getY()+Camera.position.getY()+(Game.HEIGHT/2)-tempFace.getHeight()/2));
                         g2d.rotate(Math.toRadians(this.AbsoluteAnlgeY), tempFace.getWidth()/2, tempFace.getHeight()/2);
+                        if(this.opacity<1&&this.opacity>=0){
+                            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+                        }
                         g.drawImage(textures, 0,0, (int) tempFace.getWidth() + 1, (int) tempFace.getHeight() + 1, null);
+                        if(this.opacity<1&&this.opacity>=0){    
+                            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
+                        }
                         g2d.rotate(Math.toRadians(-this.AbsoluteAnlgeY), tempFace.getWidth()/2, tempFace.getHeight()/2);
                         g.translate(-(int)(this.offset.getX()+Camera.position.getX()-tempFace.getWidth()/2), -(int)(this.offset.getY()+Camera.position.getY()+(Game.HEIGHT/2)-tempFace.getHeight()/2));
                     }

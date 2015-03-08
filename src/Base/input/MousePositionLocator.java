@@ -10,7 +10,6 @@ import Base.Handler;
 import Entity.Models;
 import Physics.Model;
 import Physics.Vector3D;
-import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
@@ -20,7 +19,7 @@ import java.awt.event.MouseMotionListener;
  */
 public class MousePositionLocator implements MouseMotionListener{
     
-    public static Model MouseLocation = Models.generateQuad(new Vector3D(0, 0, 0), 8);
+    public static Model MouseLocation = Models.generateQuad(new Vector3D(0, 0, 0), 1);
     public static boolean enableShake=false;
    
     

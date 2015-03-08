@@ -8,6 +8,8 @@ package Entity;
 import Base.Game;
 import Base.Handler;
 import Base.SpriteBinder;
+import Listener.Console;
+import Listener.Listener;
 import Physics.Model;
 import Physics.Vector3D;
 import java.awt.Graphics;
@@ -26,6 +28,9 @@ public class Hud extends Entity{
     private Entity Health;
     private float maxHealth = 100;
     private float health = maxHealth;
+    private boolean IncreaseOxygen=false;
+    private skyBox healthOverlay;
+    
     
     public Hud(Vector3D orogin, Handler handler) {
         super(Models.generateQuad(orogin, 0, 0));
@@ -34,7 +39,7 @@ public class Hud extends Entity{
         final float z = orogin.getZ();
         Model oxygen = Models.generateQuad(new Vector3D(x - Game.WIDTH/2 + 64, y - Game.HEIGHT/2 + 64, z), 64);
         oxygen.assignTexture("o2.png");
-//        OxygenText = SpriteBinder.font.returnTextbox(new Vector3D(x - Game.WIDTH/2 + 184, y - Game.HEIGHT/2 + 64, z), "Oxygen:"+this.maxOxygen);
+        OxygenText = SpriteBinder.font.returnTextbox(new Vector3D(x - Game.WIDTH/2 + 184, y - Game.HEIGHT/2 + 64, z), "Oxygen:"+this.maxOxygen);
         Model food = Models.generateQuad(new Vector3D(x - Game.WIDTH/2 + 64, y+64 - Game.HEIGHT/2 + 64, z), 64);
         food.assignTexture("food.png");
         Model power = Models.generateQuad(new Vector3D(x - Game.WIDTH/2 + 64, y+128 - Game.HEIGHT/2 + 64, z), 64, (13/12)*64);
@@ -45,38 +50,71 @@ public class Hud extends Entity{
         Model healthBar = Models.generateQuad(new Vector3D(x - Game.WIDTH/2 + 64, y+192 - Game.HEIGHT/2 + 64, z), 64);
         healthBar.assignTexture("healthBar.png");
         this.Health.models.add(healthBar);
-//        HealthText = SpriteBinder.font.returnTextbox(new Vector3D(x - Game.WIDTH/2 + 64, y+192 - Game.HEIGHT/2 + 64, z), this.health+"/"+this.maxHealth);
+        HealthText = SpriteBinder.font.returnTextbox(new Vector3D(x - Game.WIDTH/2 + 64, y+192 - Game.HEIGHT/2 + 64, z), this.health+"/"+this.maxHealth);
+        
+        this.healthOverlay = new skyBox("healthBlur.png");
         
         //add entitys and models
         this.models.add(oxygen);
         this.models.add(food);
         this.models.add(power);
         handler.entities.add(Health);
-
+        handler.entities.add(this.healthOverlay);
+        
+        Console.listeners.add(new Listener("Oxygen") {
+            @Override
+            public void Event() {
+                this.repeatable = true;
+                updateOxygen();
+            }
+        });
+        Console.listeners.add(new Listener("Health") {
+            @Override
+            public void Event() {
+                this.repeatable = true;
+                health = maxHealth;
+            }
+        });
     }
 
     public void update() {
-        this.maxOxygen++;
+        if(IncreaseOxygen){
+            this.maxOxygen++;
+        }
+        this.healthOverlay.getModel().opacity = 1-(this.health/this.maxHealth);
         if(this.health<0){
             this.health = 0;
         }
-//        OxygenText = SpriteBinder.font.returnTextbox(new Vector3D(this.getModel().offset.getX() - Game.WIDTH/2 + 184, this.getModel().offset.getY() - Game.HEIGHT/2 + 64, this.getModel().offset.getZ()), "Oxygen:"+this.maxOxygen);
-//        HealthText = SpriteBinder.font.returnTextbox(new Vector3D(this.getModel().offset.getX() - Game.WIDTH/2 + 164, this.getModel().offset.getY()+192 - Game.HEIGHT/2 + 64, this.getModel().offset.getZ()), (int)this.health+"/"+(int)this.maxHealth+" Frames:"+Game.frames);
+        OxygenText = SpriteBinder.font.returnTextbox(new Vector3D(this.getModel().offset.getX() - Game.WIDTH/2 + 184, this.getModel().offset.getY() - Game.HEIGHT/2 + 64, this.getModel().offset.getZ()), "Oxygen:"+this.maxOxygen);
+        HealthText = SpriteBinder.font.returnTextbox(new Vector3D(this.getModel().offset.getX() - Game.WIDTH/2 + 164, this.getModel().offset.getY()+192 - Game.HEIGHT/2 + 64, this.getModel().offset.getZ()), (int)this.health+"/"+(int)this.maxHealth+" Frames:"+Game.frames);
         this.Health.models.get(1).extraScale = -this.Health.models.get(1).Scale+(this.health/this.maxHealth);
         this.health-= 0.1f;
     }
 
     protected void render(Graphics g) {
-//        if(this.renderOxygen){
-//            this.OxygenText.Render(g);
-//        }
-//        if(renderHealth){
-//            this.HealthText.Render(g);
-//        }
+        if(this.renderOxygen){
+            this.OxygenText.Render(g);
+        }
+        if(renderHealth){
+            this.HealthText.Render(g);
+        }
     }
 
     public void dead() {
         
+    }
+    
+    public void updateOxygen(){
+        loop:{
+            if(IncreaseOxygen){
+               IncreaseOxygen=false;
+               break loop;
+            }
+            if(IncreaseOxygen==false){
+               IncreaseOxygen=true;
+               break loop;
+            }
+        }
     }
     
     @Override
